@@ -89,8 +89,8 @@ function updateBoard() {
 
 function checkWin(player) { 
   const win = checkWinFor(cells, player); 
-  if (win) { 
-    status.textContent = '${player} wins!'; 
+  if (win) {
+    status.textContent = `${player} wins!`;
     gameOver = true; 
     return true; 
   } 
