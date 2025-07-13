@@ -1,112 +1,100 @@
 import math
 
-def init_board():
-    return [" " for _ in range(9)]
+board = [' ' for _ in range(9)]
 
-def print_board(b):
-    print("\nCurrent Board:")
+def print_board():
+    print("\n")
     for i in range(3):
-        row = " | ".join(b[i*3:(i+1)*3])
-        print(f" {row} ")
+        row = " | ".join(board[i*3:(i+1)*3])
+        print(" " + row)
         if i < 2:
             print("---+---+---")
-    print()
+    print("\n")
 
-def winner(b, player):
-    combos = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-    ]
-    return any(all(b[i] == player for i in combo) for combo in combos)
+def check_winner(brd, player):
+    win_combos = [(0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)]
+    return any(brd[i] == brd[j] == brd[k] == player for i,j,k in win_combos)
 
-def is_draw(b):
-    return " " not in b
+def is_draw(brd):
+    return ' ' not in brd
 
-def minimax(board, depth, is_max):
-    if winner(board, "O"):
-        return 10 - depth
-    if winner(board, "X"):
-        return depth - 10
-    if is_draw(board):
+def get_available_moves(brd):
+    return [i for i in range(9) if brd[i] == ' ']
+
+def minimax(brd, depth, is_maximizing):
+    if check_winner(brd, 'O'):
+        return 1
+    if check_winner(brd, 'X'):
+        return -1
+    if is_draw(brd):
         return 0
-
-    if is_max:
-        best = -math.inf
-        for i in range(9):
-            if board[i] == " ":
-                board[i] = "O"
-                score = minimax(board, depth + 1, False)
-                board[i] = " "
-                best = max(score, best)
-        return best
+    if is_maximizing:
+        best_score = -math.inf
+        for move in get_available_moves(brd):
+            brd[move] = 'O'
+            score = minimax(brd, depth + 1, False)
+            brd[move] = ' '
+            best_score = max(best_score, score)
+        return best_score
     else:
-        best = math.inf
-        for i in range(9):
-            if board[i] == " ":
-                board[i] = "X"
-                score = minimax(board, depth + 1, True)
-                board[i] = " "
-                best = min(score, best)
-        return best
+        best_score = math.inf
+        for move in get_available_moves(brd):
+            brd[move] = 'X'
+            score = minimax(brd, depth + 1, True)
+            brd[move] = ' '
+            best_score = min(best_score, score)
+        return best_score
 
-def ai_move(board):
+def ai_move():
     best_score = -math.inf
-    move = None
-    for i in range(9):
-        if board[i] == " ":
-            board[i] = "O"
-            score = minimax(board, 0, False)
-            board[i] = " "
-            if score > best_score:
-                best_score = score
-                move = i
-    board[move] = "O"
-    print("AI has made its move.\n")
+    best_move = None
+    for move in get_available_moves(board):
+        board[move] = 'O'
+        score = minimax(board, 0, False)
+        board[move] = ' '
+        if score > best_score:
+            best_score = score
+            best_move = move
+    board[best_move] = 'O'
 
-def player_move(board):
+def human_move():
     while True:
         try:
-            move = int(input("Enter your move (1-9): "))
-            if 1 <= move <= 9 and board[move - 1] == " ":
-                board[move - 1] = "X"
-                break
+            move = int(input("Enter your move (1-9): ")) - 1
+            if move < 0 or move > 8 or board[move] != ' ':
+                print("Invalid move! Try again.")
             else:
-                print("Invalid move. Try again.")
+                board[move] = 'X'
+                break
         except ValueError:
-            print("Please enter a number from 1 to 9.")
+            print("Please enter a valid number (1-9).")
 
 def play_game():
-    board = init_board()
-    print("\nWelcome to Tic-Tac-Toe AI 🤖")
-    print("You are 'X' and AI is 'O'. Let's begin!")
-    print_board(board)
+    print("\n" * 10)
+    print("Welcome to TIC-TAC-TOE")
+    print("You are X | AI is O")
+    print_board()
 
     while True:
-        player_move(board)
-        print_board(board)
+        human_move()
+        print("\n" * 10)
+        print_board()
+        if check_winner(board, 'X'):
+            print("You win! Well played.")
+            break
+        if is_draw(board):
+            print("It's a draw!")
+            break
+        print("AI is thinking...")
+        ai_move()
+        print("\n" * 10)
+        print_board()
+        if check_winner(board, 'O'):
+            print("AI wins! Better luck next time.")
+            break
+        if is_draw(board):
+            print("It's a draw!")
+            break
 
-        if winner(board, "X"):
-            print("🎉 You win!\n")
-            break
-        elif is_draw(board):
-            print("It's a draw!\n")
-            break
-
-        ai_move(board)
-        print_board(board)
-
-        if winner(board, "O"):
-            print("😢 AI wins. Better luck next time!\n")
-            break
-        elif is_draw(board):
-            print("It's a draw!\n")
-            break
-
-if _name_ == "_main_":
-    while True:
-        play_game()
-        again = input("Play again? (y/n): ").lower()
-        if again != 'y':
-            print("\nThanks for playing! Goodbye 👋")
-            break
+if __name__ == "__main__":
+    play_game()
