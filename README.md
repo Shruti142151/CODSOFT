@@ -47,4 +47,4 @@ B.Tech (CSE) Student | AI Intern @ CODSOFT
 ## 📫 Contact
 
 For queries or collaboration:  
-📧 shrutisingh.dev@gmail.com (or your preferred contact info)
+📧 shrutisinghrajput142@gmail.com 
